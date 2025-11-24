@@ -35,7 +35,7 @@ export const appendOrder = async (order: any) => {
     let sheet = doc.sheetsByTitle['Orders'];
     if (!sheet) {
         sheet = await doc.addSheet({
-            headerValues: ['order_id', 'date', 'total', 'items_summary', 'timestamp', 'estimated_time', 'viewed'],
+            headerValues: ['order_id', 'date', 'total', 'items_summary', 'timestamp', 'estimated_time', 'viewed', 'nickname', 'customer_email', 'notification_sent'],
             title: 'Orders'
         });
     }
@@ -81,6 +81,9 @@ export const appendOrder = async (order: any) => {
         timestamp: timestamp,
         estimated_time: estimatedTime,
         viewed: order.viewed ? 'Yes' : 'No',
+        nickname: order.nickname || '',
+        customer_email: order.customerEmail || '',
+        notification_sent: 'No',
     });
 };
 

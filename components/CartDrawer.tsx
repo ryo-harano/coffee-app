@@ -1,9 +1,13 @@
 "use client";
+import { useState } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { useCoffee } from '@/context/CoffeeContext';
 
 export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { cart, removeFromCart, placeOrder } = useCoffee();
+    const [nickname, setNickname] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
 
     // 割引判定
     const hasBeverage = cart.some(item => item.category === 'Drink');
@@ -23,6 +27,26 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
     });
 
     const total = hasDiscount ? Math.round(discountedTotal) : originalTotal;
+
+    // メールアドレスのバリデーション
+    const validateEmail = (email: string) => {
+        if (!email) return true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handlePlaceOrder = () => {
+        if (customerEmail && !validateEmail(customerEmail)) {
+            setEmailError('正しいメールアドレスを入力してください');
+            return;
+        }
+
+        setEmailError('');
+        placeOrder(nickname || undefined, customerEmail || undefined);
+        setNickname('');
+        setCustomerEmail('');
+        onClose();
+    };
 
     if (!isOpen) return null;
 
@@ -86,6 +110,38 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                 </div>
 
                 <div className="p-4 border-t border-gray-200 bg-coffee-cream">
+                    {cart.length > 0 && (
+                        <div className="mb-4 space-y-3">
+                            <h3 className="text-sm font-bold text-coffee-dark">Customer Information (Optional)</h3>
+                            <input
+                                type="text"
+                                placeholder="Nickname"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-green"
+                            />
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email address"
+                                    value={customerEmail}
+                                    onChange={(e) => {
+                                        setCustomerEmail(e.target.value);
+                                        setEmailError('');
+                                    }}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-green ${emailError ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                />
+                                {emailError && (
+                                    <p className="text-xs text-red-500 mt-1">{emailError}</p>
+                                )}
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Get notified when your order is ready!
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center mb-4 text-xl font-bold text-coffee-dark">
                         <span>Total</span>
                         <div className="text-right">
@@ -100,7 +156,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                         </div>
                     </div>
                     <button
-                        onClick={() => { placeOrder(); onClose(); }}
+                        onClick={handlePlaceOrder}
                         disabled={cart.length === 0}
                         className="w-full bg-coffee-green text-white py-3 rounded-full font-bold hover:bg-[#004f32] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
                     >

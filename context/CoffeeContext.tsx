@@ -25,7 +25,9 @@ export type Order = {
   items: OrderItem[];
   total: number;
   date: string;
-  viewed?: boolean; // 閲覧済みフラグ
+  viewed?: boolean;
+  nickname?: string;
+  customerEmail?: string;
 };
 
 type CoffeeContextType = {
@@ -35,7 +37,7 @@ type CoffeeContextType = {
   addToCart: (item: MenuItem, size: 'S' | 'M' | 'L', quantity: number, temperature: 'Hot' | 'Ice') => void;
   removeFromCart: (itemId: string, size: 'S' | 'M' | 'L', temperature: 'Hot' | 'Ice') => void;
   clearCart: () => void;
-  placeOrder: () => void;
+  placeOrder: (nickname?: string, customerEmail?: string) => void;
   addMenuItem: (item: Omit<MenuItem, 'id'>) => void;
   updateMenuItem: (item: MenuItem) => void;
   deleteMenuItem: (id: string) => void;
@@ -53,8 +55,8 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
 
   // Load from local storage
   useEffect(() => {
-    const storedMenu = localStorage.getItem('coffee-menu-v7');
-    const storedOrders = localStorage.getItem('coffee-orders-v7');
+    const storedMenu = localStorage.getItem('coffee-menu-v8');
+    const storedOrders = localStorage.getItem('coffee-orders-v8');
 
     if (storedMenu) {
       setMenuItems(JSON.parse(storedMenu));
@@ -177,11 +179,11 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
 
   // Save to local storage
   useEffect(() => {
-    if (isLoaded) localStorage.setItem('coffee-menu-v7', JSON.stringify(menuItems));
+    if (isLoaded) localStorage.setItem('coffee-menu-v8', JSON.stringify(menuItems));
   }, [menuItems, isLoaded]);
 
   useEffect(() => {
-    if (isLoaded) localStorage.setItem('coffee-orders-v7', JSON.stringify(orders));
+    if (isLoaded) localStorage.setItem('coffee-orders-v8', JSON.stringify(orders));
   }, [orders, isLoaded]);
 
   const addToCart = (item: MenuItem, size: 'S' | 'M' | 'L', quantity: number, temperature: 'Hot' | 'Ice') => {
@@ -204,23 +206,18 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = () => {
+  const placeOrder = (nickname?: string, customerEmail?: string) => {
     if (cart.length === 0) return;
 
-    // 飲み物とフード/デザートの判定
     const hasBeverage = cart.some(item => item.category === 'Drink');
     const hasFoodOrDessert = cart.some(item => item.category === 'Food' || item.category === 'Dessert');
 
-    // 割引適用
     let total = 0;
     const discountedItems = cart.map(item => {
       let itemPrice = item.selectedPrice * item.quantity;
-
-      // 飲み物+フード/デザートの場合、飲み物を10%OFF
       if (hasBeverage && hasFoodOrDessert && item.category === 'Drink') {
-        itemPrice = itemPrice * 0.9; // 10% OFF
+        itemPrice = itemPrice * 0.9;
       }
-
       total += itemPrice;
       return item;
     });
@@ -228,8 +225,10 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
     const newOrder: Order = {
       id: Date.now().toString(),
       items: cart,
-      total: Math.round(total), // 四捨五入
+      total: Math.round(total),
       date: new Date().toISOString(),
+      nickname,
+      customerEmail,
     };
     setOrders(prev => [newOrder, ...prev]);
     clearCart();
