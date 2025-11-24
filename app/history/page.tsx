@@ -67,6 +67,11 @@ export default function HistoryPage() {
                                                 <Clock className="w-5 h-5 mr-2 text-coffee-green" />
                                                 {new Date(order.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
+                                            {order.nickname && (
+                                                <div className="text-sm text-gray-600 mt-1 font-medium">
+                                                    👤 {order.nickname}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="text-right">
                                             <div className="text-sm text-gray-500 mb-1">Estimated Pickup</div>

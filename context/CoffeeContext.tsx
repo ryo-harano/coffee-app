@@ -233,11 +233,18 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
     setOrders(prev => [newOrder, ...prev]);
     clearCart();
 
-    // Sync to Sheets
-    fetch('/api/sheets/orders', {
+    // Sync to Sheets (via GAS Web App)
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrZR2jLq2FflpkDNaNe3AP5dCLZBXbmA3NNsQYccsKCN_wiFFKWB1buDfs-6M3vuvVvA/exec';
+
+    fetch(GAS_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newOrder),
+      mode: 'no-cors', // CORSエラーを回避（レスポンスは取得できない）
+      headers: {
+        'Content-Type': 'text/plain', // プリフライトリクエストを回避
+      },
+      body: JSON.stringify({ order: newOrder }), // GAS側で e.postData.contents として受け取る
+    }).then(() => {
+      console.log('Order synced to Sheets');
     }).catch(err => console.error('Failed to sync order:', err));
   };
 
