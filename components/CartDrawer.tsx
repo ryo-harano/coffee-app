@@ -6,7 +6,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
     const { cart, removeFromCart, placeOrder } = useCoffee();
 
     // 割引判定
-    const hasBeverage = cart.some(item => item.category === 'Hot' || item.category === 'Ice');
+    const hasBeverage = cart.some(item => item.category === 'Drink');
     const hasFoodOrDessert = cart.some(item => item.category === 'Food' || item.category === 'Dessert');
     const hasDiscount = hasBeverage && hasFoodOrDessert;
 
@@ -16,7 +16,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
 
     cart.forEach(item => {
         let itemPrice = item.selectedPrice * item.quantity;
-        if (hasDiscount && (item.category === 'Hot' || item.category === 'Ice')) {
+        if (hasDiscount && item.category === 'Drink') {
             itemPrice = itemPrice * 0.9; // 10% OFF
         }
         discountedTotal += itemPrice;
@@ -41,7 +41,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                     ) : (
                         <>
                             {cart.map(item => {
-                                const isBeverage = item.category === 'Hot' || item.category === 'Ice';
+                                const isBeverage = item.category === 'Drink';
                                 const itemOriginalPrice = item.selectedPrice * item.quantity;
                                 const itemDiscountedPrice = hasDiscount && isBeverage
                                     ? Math.round(itemOriginalPrice * 0.9)

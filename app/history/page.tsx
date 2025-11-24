@@ -48,7 +48,7 @@ export default function HistoryPage() {
                     <div className="space-y-6">
                         {orders.map(order => {
                             // 割引判定
-                            const hasBeverage = order.items.some(item => item.category === 'Hot' || item.category === 'Ice');
+                            const hasBeverage = order.items.some(item => item.category === 'Drink');
                             const hasFoodOrDessert = order.items.some(item => item.category === 'Food' || item.category === 'Dessert');
                             const hasDiscount = hasBeverage && hasFoodOrDessert;
 
@@ -78,7 +78,7 @@ export default function HistoryPage() {
 
                                     <div className="space-y-3">
                                         {order.items.map((item, idx) => {
-                                            const isBeverage = item.category === 'Hot' || item.category === 'Ice';
+                                            const isBeverage = item.category === 'Drink';
                                             const itemOriginalPrice = item.selectedPrice * item.quantity;
                                             const itemDiscountedPrice = hasDiscount && isBeverage
                                                 ? Math.round(itemOriginalPrice * 0.9)

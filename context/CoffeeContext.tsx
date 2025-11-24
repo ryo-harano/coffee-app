@@ -208,7 +208,7 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
     if (cart.length === 0) return;
 
     // 飲み物とフード/デザートの判定
-    const hasBeverage = cart.some(item => item.category === 'Hot' || item.category === 'Ice');
+    const hasBeverage = cart.some(item => item.category === 'Drink');
     const hasFoodOrDessert = cart.some(item => item.category === 'Food' || item.category === 'Dessert');
 
     // 割引適用
@@ -217,7 +217,7 @@ export const CoffeeProvider = ({ children }: { children: ReactNode }) => {
       let itemPrice = item.selectedPrice * item.quantity;
 
       // 飲み物+フード/デザートの場合、飲み物を10%OFF
-      if (hasBeverage && hasFoodOrDessert && (item.category === 'Hot' || item.category === 'Ice')) {
+      if (hasBeverage && hasFoodOrDessert && item.category === 'Drink') {
         itemPrice = itemPrice * 0.9; // 10% OFF
       }
 
